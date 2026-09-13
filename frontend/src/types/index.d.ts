@@ -9,6 +9,12 @@ export interface QuickStats {
   sources_analyzed: number
   companies_analyzed: number
   trends_detected: number
+  insights_synthesized: number
+  opportunities_identified: number
+  risks_identified: number
+  sentiment_counts: Record<string, number>
+  research_type_counts: Record<string, number>
+  source_type_counts: Record<string, number>
 }
 
 export interface HealthResponse {

@@ -23,11 +23,14 @@ The core platform is built, run, and tested end-to-end. Current completion:
   research pipeline; gracefully falls back when the provider is unconfigured
   or unreachable. No new Python dependencies added.
 
-Next development milestone: **Competitor Research**.
+Next development milestone: **Full Dashboard** — aggregate the completed engine
+outputs (insights, opportunities, risks, sentiment, research types, source
+types) into the dashboard's quick statistics and distribution view.
 
 What exists right now:
 - React (Vite) frontend with routing, the left navigation rail, and a real
-  **Dashboard** page (welcome search bar, quick stats, recent research list)
+  **Dashboard** page (welcome search bar, quick stats across all engine
+  outputs, sentiment / research / source mix chips, recent research list)
   wired to the backend — no hardcoded fake numbers, it shows genuine empty
   states until real research exists.
 - FastAPI backend with a real database connection (SQLite locally,
@@ -102,9 +105,10 @@ MarketIQ/
 | 3 | Document ingestion (PDF/TXT/DOCX/CSV → chunks) | Complete |
 | 4 | RAG pipeline (retrieval → context → answer + sources) | Complete |
 | 5 | News research (NewsAPI, recent-news evidence, provenance) | Complete |
-| 6 | Competitor research | Next |
-| 7–9 | Sentiment, Trend, Insight/Report agents | Planned |
-| 10–13 | Full dashboard, research history, follow-up Q&A, polish | Planned |
+| 6 | Competitor research | Complete |
+| 7–9 | Sentiment, Trend, Insight/Report agents | Complete |
+| 10 | Full dashboard | Next |
+| 11–13 | Research history, follow-up Q&A, polish | Planned |
 
 Each step will be built, run, and tested before moving to the next — no
 half-finished features left in place.

@@ -509,8 +509,9 @@ def test_research_agent_sentiment_adds_single_call(monkeypatch):
         "Analyze the Indian EV market", document_ids=["d1"])
 
     # Sentiment adds exactly ONE Gemini call on top of identification +
-    # synthesis; the Step 8 trend pass adds exactly one more.
-    assert counters["gen_json"] == 4
+    # synthesis; the Step 8 trend pass adds exactly one more and the
+    # Step 9 insight-naming pass adds the final one.
+    assert counters["gen_json"] == 5
     # Zero additional web/news/RAG gathering beyond the once-each initial passes.
     assert counters["web"] == 1
     assert counters["news_get"] == 2  # query-level + one focused competitor
@@ -544,8 +545,8 @@ def test_research_engine_persists_sentiments_and_backcompat_fields(monkeypatch):
     )
     try:
         assert record.status == ResearchStatus.COMPLETED
-        # identification + synthesis + sentiment + trend = 4 Gemini calls.
-        assert counters["gen_json"] == 4
+        # identification + synthesis + sentiment + trend + insight = 5 Gemini calls.
+        assert counters["gen_json"] == 5
         result = db.get(ResearchResult, record.result.id) if record.result else None
         assert result is not None
         sentiment = result.sentiment or {}

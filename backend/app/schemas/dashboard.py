@@ -9,6 +9,12 @@ class QuickStats(BaseModel):
     sources_analyzed: int
     companies_analyzed: int
     trends_detected: int
+    insights_synthesized: int = 0
+    opportunities_identified: int = 0
+    risks_identified: int = 0
+    sentiment_counts: dict[str, int] = {}
+    research_type_counts: dict[str, int] = {}
+    source_type_counts: dict[str, int] = {}
 
 
 class ResearchCard(BaseModel):

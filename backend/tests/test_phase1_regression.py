@@ -42,9 +42,20 @@ def test_stats_endpoint():
     res = client.get("/api/stats")
     assert res.status_code == 200
     body = res.json()
-    for key in ("researches_completed", "sources_analyzed", "companies_analyzed", "trends_detected"):
+    for key in (
+        "researches_completed",
+        "sources_analyzed",
+        "companies_analyzed",
+        "trends_detected",
+        "insights_synthesized",
+        "opportunities_identified",
+        "risks_identified",
+    ):
         assert key in body
         assert isinstance(body[key], int)
+    for key in ("sentiment_counts", "research_type_counts", "source_type_counts"):
+        assert key in body
+        assert isinstance(body[key], dict)
 
 
 def test_recent_research_endpoint():

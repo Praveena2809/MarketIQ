@@ -634,7 +634,7 @@ class TestResearchAgentTrendPipeline:
         agent = ResearchAgent()
         report, all_evidence = agent.execute_research("Analyze the Indian EV market", document_ids=["d1"])
 
-        assert counters["gen_json"] == 4  # identification + synthesis + sentiment + trend
+        assert counters["gen_json"] == 5  # identification + synthesis + sentiment + trend + insight
         assert counters["web"] == 1
         assert counters["news_get"] == 2
         assert counters["rag"] == 2
@@ -668,7 +668,7 @@ class TestResearchAgentTrendPipeline:
         monkeypatch.setattr(agent.synthesis_agent, "generate_report", wrap_generate_report)
         report, _ = agent.execute_research("Analyze the Indian EV market", document_ids=["d1"])
 
-        assert counters["gen_json"] == 4  # trend call still attempted
+        assert counters["gen_json"] == 5  # trend call still attempted
         # Synthesis-produced default preserved.
         assert report.trends and len(report.trends) == 1
         assert report.trends[0].trend == "Agentic AI (synthesis default)"
@@ -699,7 +699,7 @@ class TestResearchAgentTrendPipeline:
         monkeypatch.setattr(agent.synthesis_agent, "generate_report", wrap_generate_report)
         report, _ = agent.execute_research("Analyze the Indian EV market", document_ids=["d1"])
 
-        assert counters["gen_json"] == 4
+        assert counters["gen_json"] == 5
         # Successful zero-trend determination wins over the synthesis default.
         assert report.trends == []
         assert not any(getattr(t, "trend", "") == "Agentic AI (synthesis default)" for t in report.trends)
@@ -738,7 +738,7 @@ class TestTrendPersistence:
         )
         try:
             assert record.status == ResearchStatus.COMPLETED
-            assert counters["gen_json"] == 4
+            assert counters["gen_json"] == 5
             result = db.get(ResearchResult, record.result.id) if record.result else None
             assert result is not None
             # DB round-trip: evidence, source_types, direction, as_of preserved.
@@ -781,7 +781,7 @@ class TestTrendPersistence:
         )
         try:
             assert record.status == ResearchStatus.COMPLETED
-            assert counters["gen_json"] == 4
+            assert counters["gen_json"] == 5
             result = db.get(ResearchResult, record.result.id) if record.result else None
             assert result is not None
             # Synthesis defaults preserved; empty additive fields (no fabrication).
