@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-serif: "Newsreader", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --color-paper: #f5f6f4;
+  --color-panel: #ffffff;
+  --color-ink: #1b2230;
+  --color-ink-soft: #55606e;
+  --color-hairline: #dbe0dc;
+  --color-evidence: #2f6f5e;
+  --color-evidence-soft: #e7f1ee;
+  --color-evidence-dark: #24554a;
+  --color-signal: #b8862f;
+  --color-signal-soft: #f6ecda;
+  --color-negative: #a4423a;
+  --color-negative-soft: #f5e7e5;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: var(--color-evidence-soft);
+  color: var(--color-evidence);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
