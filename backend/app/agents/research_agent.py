@@ -7,6 +7,7 @@ from app.agents.web_research_agent import WebResearchAgent
 from app.agents.news_research_agent import NewsResearchAgent
 from app.agents.document_research_agent import DocumentResearchAgent
 from app.agents.competitor_research_agent import CompetitorResearchAgent
+from app.agents.sentiment_research_agent import SentimentResearchAgent
 from app.agents.synthesis_agent import SynthesisAgent
 from app.services.research.evidence import Evidence
 from app.schemas.research import ResearchSynthesisSchema
@@ -24,6 +25,7 @@ class ResearchAgent:
         self.news_agent = NewsResearchAgent()
         self.doc_agent = DocumentResearchAgent()
         self.competitor_agent = CompetitorResearchAgent()
+        self.sentiment_agent = SentimentResearchAgent()
         self.synthesis_agent = SynthesisAgent()
 
     def execute_research(
@@ -36,8 +38,10 @@ class ResearchAgent:
         2. Gathers recent news evidence (configured news provider).
         3. Gathers document evidence (Phase 2 RAG).
         4. Runs competitor research over the combined existing evidence pool.
-        5. Synthesizes findings using Gemini.
-        6. Returns structured report and all combined evidence.
+        5. Runs categorical, evidence-grounded sentiment analysis over the
+           combined evidence pool (web + news + document + competitor).
+        6. Synthesizes findings using Gemini.
+        7. Returns structured report and all combined evidence.
         """
         # 1. Gather web evidence
         web_evidence, warning_note = self.web_agent.gather_web_evidence(query)
@@ -58,7 +62,17 @@ class ResearchAgent:
             document_ids=document_ids,
         )
 
-        # 5. Synthesize report grounded in web + news + document + competitor evidence
+        all_evidence = existing_evidence + competitor_research.evidence
+
+        # 5. Categorical, evidence-grounded sentiment over the combined pool.
+        #    Exactly one Gemini call; no new evidence is gathered.
+        sentiment_research = self.sentiment_agent.execute_sentiment_analysis(
+            query=query,
+            evidence_pool=all_evidence,
+            competitors=competitor_research.identified,
+        )
+
+        # 6. Synthesize report grounded in web + news + document + competitor evidence
         report = self.synthesis_agent.generate_report(
             query=query,
             web_evidence=web_evidence,
@@ -67,8 +81,11 @@ class ResearchAgent:
             competitor_contexts=competitor_research.contexts,
             warning_notes=_combine_warnings(
                 warning_note, news_warning, competitor_research.warning,
+                sentiment_research.warning,
             ),
         )
 
-        all_evidence = existing_evidence + competitor_research.evidence
+        # 7. Attach sentiment (additive optional field; None stays a no-op).
+        report.sentiment = sentiment_research.sentiment
+
         return report, all_evidence

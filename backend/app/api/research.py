@@ -17,6 +17,7 @@ from app.schemas.research import (
     RiskItem,
     OpportunityItem,
     CompetitorItem,
+    SentimentSchema,
 )
 from app.services.research.research_engine import get_research_engine
 
@@ -31,6 +32,7 @@ def _format_research_response(r: Research) -> ResearchResponse:
     if r.result:
         res = r.result
         sentiment_dict = res.sentiment or {}
+        sentiments = sentiment_dict.get("sentiments") or None
         result_data = ResearchSynthesisSchema(
             executive_summary=res.summary or "",
             key_findings=[KeyFindingItem(**k) for k in (res.insights or [])],
@@ -40,6 +42,8 @@ def _format_research_response(r: Research) -> ResearchResponse:
             risks=[RiskItem(**rk) for rk in (res.risks or [])],
             competitors=[CompetitorItem(**c) for c in (res.competitors or [])],
             conclusion=sentiment_dict.get("conclusion", ""),
+            # Step 7 (additive): rebuilt only when a stored sentiments payload exists.
+            sentiment=SentimentSchema(**sentiments) if sentiments else None,
             source_ids=[s.id for s in (r.sources or [])],
         )
 

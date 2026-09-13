@@ -58,6 +58,28 @@ export interface Competitor {
   evidence?: string[]
 }
 
+export type SentimentLabel = 'positive' | 'neutral' | 'negative' | 'mixed' | 'unavailable'
+
+export interface SentimentItem {
+  label: SentimentLabel
+  evidence: string[]
+  source_types: string[]
+  summary: string
+}
+
+export interface EntitySentiment {
+  entity: string
+  label: SentimentLabel
+  evidence: string[]
+  source_types: string[]
+  summary: string
+}
+
+export interface Sentiment {
+  overall: SentimentItem
+  entities: EntitySentiment[]
+}
+
 export interface ResearchSynthesis {
   executive_summary: string
   key_findings: KeyFinding[]
@@ -67,6 +89,7 @@ export interface ResearchSynthesis {
   risks: Risk[]
   competitors: Competitor[]
   conclusion: string
+  sentiment?: Sentiment | null
   source_ids: string[]
 }
 

@@ -78,6 +78,10 @@ class ResearchEngine:
                 sentiment={
                     "market_overview": report.market_overview,
                     "conclusion": report.conclusion,
+                    # Step 7: categorical, evidence-grounded sentiment (additive).
+                    "sentiments": report.sentiment.model_dump()
+                    if report.sentiment
+                    else None,
                 },
             )
             db.add(result_record)

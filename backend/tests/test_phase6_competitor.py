@@ -637,8 +637,8 @@ def test_research_engine_competitor_analysis_e2e(monkeypatch):
         assert counters["news_get"] == 2
         # query-level RAG (1) + focused RAG for the single competitor (1).
         assert counters["rag"] == 2
-        # identification + synthesis happen once each.
-        assert counters["gen_json"] == 2
+        # identification + synthesis + sentiment (Step 7) happen once each.
+        assert counters["gen_json"] == 3
 
         sources = db.query(Source).filter(Source.research_id == record.id).all()
         types = {s.source_type for s in sources}

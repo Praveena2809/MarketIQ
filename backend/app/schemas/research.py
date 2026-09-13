@@ -48,6 +48,27 @@ class OpportunityItem(BaseModel):
     potential_impact: str = "medium"
 
 
+class SentimentItem(BaseModel):
+    label: str = "unavailable"  # positive | neutral | negative | mixed | unavailable
+    evidence: List[str] = Field(default_factory=list)
+    # Derived server-side from verified evidence IDs (web | news | document | competitor).
+    source_types: List[str] = Field(default_factory=list)
+    summary: str = ""
+
+
+class EntitySentimentItem(BaseModel):
+    entity: str = ""
+    label: str = "unavailable"
+    evidence: List[str] = Field(default_factory=list)
+    source_types: List[str] = Field(default_factory=list)
+    summary: str = ""
+
+
+class SentimentSchema(BaseModel):
+    overall: SentimentItem
+    entities: List[EntitySentimentItem] = Field(default_factory=list)
+
+
 class ResearchSynthesisSchema(BaseModel):
     executive_summary: str = ""
     key_findings: List[KeyFindingItem] = Field(default_factory=list)
@@ -57,6 +78,7 @@ class ResearchSynthesisSchema(BaseModel):
     risks: List[RiskItem] = Field(default_factory=list)
     competitors: List[CompetitorItem] = Field(default_factory=list)
     conclusion: str = ""
+    sentiment: Optional[SentimentSchema] = None  # Step 7, additive optional.
     source_ids: List[str] = Field(default_factory=list)
 
 
