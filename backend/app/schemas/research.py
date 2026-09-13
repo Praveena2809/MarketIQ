@@ -19,6 +19,16 @@ class CompetitorItem(BaseModel):
     market_share: Optional[str] = None
     strengths: List[str] = Field(default_factory=list)
     weaknesses: List[str] = Field(default_factory=list)
+    # Evidence IDs backing this competitor profile (Step 6, additive optional).
+    evidence: List[str] = Field(default_factory=list)
+
+
+class CompetitorIdentificationItem(BaseModel):
+    name: str
+
+
+class CompetitorIdentificationSchema(BaseModel):
+    competitors: List[CompetitorIdentificationItem] = Field(default_factory=list)
 
 
 class TrendItem(BaseModel):

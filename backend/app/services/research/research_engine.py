@@ -19,6 +19,8 @@ def _safe_error_string(exc: Exception) -> str:
     settings = get_settings()
     if settings.GEMINI_API_KEY:
         raw = raw.replace(settings.GEMINI_API_KEY, "[REDACTED]")
+    if settings.NEWS_API_KEY:
+        raw = raw.replace(settings.NEWS_API_KEY, "[REDACTED]")
     return raw[:2000]
 
 

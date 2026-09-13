@@ -34,6 +34,15 @@ class Settings(BaseSettings):
     # Research Engine Settings
     MAX_RESEARCH_QUERIES: int = 5
 
+    # Competitor research (Step 6)
+    # Max distinct competitor profiles identified and researched per job.
+    MAX_COMPETITORS: int = 5
+    # Google Search grounding is quota-scarce: focused per-competitor web
+    # searches are OFF by default. When enabled, at most one focused grounding
+    # search per identified competitor, and only when that competitor lacks
+    # web/news coverage in the existing evidence pool.
+    COMPETITOR_FOCUSED_WEB_SEARCH: bool = False
+
     # User Context
     DEFAULT_USER_ID: str = "demo_user"
     DEFAULT_USER_EMAIL: str = "demo@marketiq.ai"

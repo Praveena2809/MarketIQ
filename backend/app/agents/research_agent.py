@@ -1,11 +1,12 @@
 """
 Coordinator Research Agent orchestrating Web Research, News Research, Document RAG,
-Evidence Normalization, and Synthesis.
+Competitor Research, and Synthesis.
 """
 from typing import List, Optional, Tuple
 from app.agents.web_research_agent import WebResearchAgent
 from app.agents.news_research_agent import NewsResearchAgent
 from app.agents.document_research_agent import DocumentResearchAgent
+from app.agents.competitor_research_agent import CompetitorResearchAgent
 from app.agents.synthesis_agent import SynthesisAgent
 from app.services.research.evidence import Evidence
 from app.schemas.research import ResearchSynthesisSchema
@@ -22,6 +23,7 @@ class ResearchAgent:
         self.web_agent = WebResearchAgent()
         self.news_agent = NewsResearchAgent()
         self.doc_agent = DocumentResearchAgent()
+        self.competitor_agent = CompetitorResearchAgent()
         self.synthesis_agent = SynthesisAgent()
 
     def execute_research(
@@ -33,7 +35,7 @@ class ResearchAgent:
         1. Gathers web evidence (Google Search grounding).
         2. Gathers recent news evidence (configured news provider).
         3. Gathers document evidence (Phase 2 RAG).
-        4. Combines evidence into a normalized list.
+        4. Runs competitor research over the combined existing evidence pool.
         5. Synthesizes findings using Gemini.
         6. Returns structured report and all combined evidence.
         """
@@ -46,14 +48,27 @@ class ResearchAgent:
         # 3. Gather document evidence
         doc_evidence = self.doc_agent.gather_document_evidence(query, document_ids=document_ids)
 
-        # 4. Synthesize report grounded in web + news + document evidence
+        # 4. Identify competitors from the gathered evidence and, only where
+        #    necessary and bounded, collect focused per-competitor evidence.
+        #    The initial web/news/document passes are NOT repeated here.
+        existing_evidence = web_evidence + news_evidence + doc_evidence
+        competitor_research = self.competitor_agent.execute_competitor_research(
+            query=query,
+            existing_evidence=existing_evidence,
+            document_ids=document_ids,
+        )
+
+        # 5. Synthesize report grounded in web + news + document + competitor evidence
         report = self.synthesis_agent.generate_report(
             query=query,
             web_evidence=web_evidence,
             news_evidence=news_evidence,
             doc_evidence=doc_evidence,
-            warning_notes=_combine_warnings(warning_note, news_warning),
+            competitor_contexts=competitor_research.contexts,
+            warning_notes=_combine_warnings(
+                warning_note, news_warning, competitor_research.warning,
+            ),
         )
 
-        all_evidence = web_evidence + news_evidence + doc_evidence
+        all_evidence = existing_evidence + competitor_research.evidence
         return report, all_evidence

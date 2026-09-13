@@ -1,4 +1,4 @@
-import { Building2, CircleMinus, CirclePlus } from 'lucide-react'
+import { BookOpen, Building2, CircleMinus, CirclePlus } from 'lucide-react'
 
 function BulletList({ items, icon }) {
   if (!items || items.length === 0) {
@@ -52,6 +52,19 @@ export default function CompetitorCard({ competitor }) {
           <BulletList items={competitor.weaknesses} icon={<CircleMinus size={13} className="mt-0.5 shrink-0 text-negative" />} />
         </div>
       </div>
+
+      {competitor.evidence && competitor.evidence.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5 border-t border-hairline pt-3">
+          <p className="flex items-center gap-1.5 text-[0.72rem] font-medium uppercase tracking-wide text-ink-soft">
+            <BookOpen size={13} strokeWidth={2} /> Evidence
+          </p>
+          {competitor.evidence.map((id) => (
+            <span key={id} className="rounded bg-paper px-1.5 py-0.5 font-mono text-[0.68rem] text-ink-soft">
+              {id}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

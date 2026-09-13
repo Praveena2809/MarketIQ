@@ -55,6 +55,7 @@ export interface Competitor {
   market_share: string | null
   strengths: string[]
   weaknesses: string[]
+  evidence?: string[]
 }
 
 export interface ResearchSynthesis {
