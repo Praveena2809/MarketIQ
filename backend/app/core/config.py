@@ -38,9 +38,21 @@ class Settings(BaseSettings):
     DEFAULT_USER_ID: str = "demo_user"
     DEFAULT_USER_EMAIL: str = "demo@marketiq.ai"
 
-    # News provider - optional. If empty, the News Agent serves clearly
-    # labeled mock data instead of failing.
+    # News provider (Step 5) - optional. If NEWS_API_KEY is empty or the
+    # provider is unreachable/quota-limited, the News Agent fails gracefully
+    # and research continues with an explicit "news unchecked" status - it
+    # never fabricates articles or URLs.
+    NEWS_PROVIDER: str = "newsapi"
+    NEWS_BASE_URL: str = "https://newsapi.org/v2/everything"
     NEWS_API_KEY: str = ""
+    # Look back window for "recent" news, in days.
+    NEWS_RECENCY_DAYS: int = 30
+    # Max news articles retained per research job.
+    NEWS_RESULTS_PER_QUERY: int = 5
+    # Max distinct news searches per research job (bounded, no open loop).
+    NEWS_QUERY_LIMIT: int = 1
+    NEWS_LANGUAGE: str = "en"
+    NEWS_REQUEST_TIMEOUT: int = 10
 
     CORS_ORIGINS: str = "http://localhost:5173"
     SECRET_KEY: str = "change-me-in-production"

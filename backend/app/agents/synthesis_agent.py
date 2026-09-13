@@ -17,10 +17,12 @@ class SynthesisAgent:
         web_evidence: List[Evidence],
         doc_evidence: List[Evidence],
         warning_notes: Optional[str] = None,
+        news_evidence: Optional[List[Evidence]] = None,
     ) -> ResearchSynthesisSchema:
         return self.synthesis_service.synthesize(
             query=query,
             web_evidence=web_evidence,
             doc_evidence=doc_evidence,
+            news_evidence=news_evidence or [],
             warning_notes=warning_notes,
         )

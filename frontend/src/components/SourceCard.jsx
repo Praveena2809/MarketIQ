@@ -1,4 +1,4 @@
-import { ExternalLink, FileText } from 'lucide-react'
+import { ExternalLink, FileText, Newspaper } from 'lucide-react'
 
 function formatDate(iso) {
   if (!iso) return null
@@ -19,13 +19,22 @@ export default function SourceCard({ source }) {
       : null
 
   const isDocument = source.source_type === 'document'
-  const provider = source.source_name || (isDocument ? 'Uploaded document' : 'Source')
+  const isNews = source.source_type === 'news'
+  const provider = isNews
+    ? source.source_name || 'News source'
+    : source.source_name || (isDocument ? 'Uploaded document' : 'Source')
 
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-hairline bg-panel p-4 shadow-sm">
       <div className="flex items-start gap-3">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-evidence-soft text-evidence">
-          {isDocument ? <FileText size={16} strokeWidth={1.75} /> : <ExternalLink size={16} strokeWidth={1.75} />}
+          {isDocument ? (
+            <FileText size={16} strokeWidth={1.75} />
+          ) : isNews ? (
+            <Newspaper size={16} strokeWidth={1.75} />
+          ) : (
+            <ExternalLink size={16} strokeWidth={1.75} />
+          )}
         </span>
         <div className="min-w-0 flex-1">
           <p className="font-serif text-[0.975rem] leading-snug text-ink">{source.title}</p>
@@ -34,7 +43,9 @@ export default function SourceCard({ source }) {
             <span className="rounded bg-paper px-1.5 py-0.5 uppercase tracking-wide text-ink-soft">
               {source.source_type}
             </span>
-            {formatDate(source.published_at) && <span>{formatDate(source.published_at)}</span>}
+            {formatDate(source.published_at) && (
+              <span>{isNews ? 'Published ' : ''}{formatDate(source.published_at)}</span>
+            )}
           </div>
         </div>
       </div>

@@ -6,6 +6,7 @@ import EmptyState from '../components/EmptyState'
 
 const typeFilters = [
   { value: 'all', label: 'All' },
+  { value: 'news', label: 'News' },
   { value: 'web', label: 'Web' },
   { value: 'document', label: 'Documents' },
 ]
@@ -37,9 +38,9 @@ export default function SourcesPage() {
     <div className="mx-auto max-w-4xl px-6 py-10 lg:px-10">
       <h2 className="font-serif text-2xl text-ink">Sources</h2>
       <p className="mt-1 max-w-2xl text-[0.9rem] text-ink-soft">
-        The grounded sources MarketIQ has recorded across your research - live web citations and the
-        documents you’ve uploaded. An empty or sparse list means research ran without enough
-        accessible evidence.
+        The grounded sources MarketIQ has recorded across your research - recent news
+        articles, live web citations and the documents you’ve uploaded. An empty or sparse list
+        means research ran without enough accessible evidence.
       </p>
 
       {error && (

@@ -17,8 +17,13 @@ The core platform is built, run, and tested end-to-end. Current completion:
 - **Phase 3 / Document Ingestion + RAG — COMPLETE**: PDF/TXT/DOCX/CSV
   ingestion (parse → chunk → embed → vector store) and retrieval.
 - **RAG pipeline (retrieval → context → answer + sources) — COMPLETE**.
+- **Step 5 / News Research — COMPLETE**: recent-news retrieval via NewsAPI,
+  normalized into the existing evidence/synthesis architecture with full
+  provenance (title, URL, publisher, publication date). Integrates with the
+  research pipeline; gracefully falls back when the provider is unconfigured
+  or unreachable. No new Python dependencies added.
 
-Next development milestone: **News Research**.
+Next development milestone: **Competitor Research**.
 
 What exists right now:
 - React (Vite) frontend with routing, the left navigation rail, and a real
@@ -30,9 +35,14 @@ What exists right now:
   `/api/research/recent`, `/api/documents/*`, and `/api/research/*`.
 - Document ingestion for PDF/TXT/DOCX/CSV with chunking, Gemini embeddings
   (768-dim), and a ChromaDB vector store.
-- An AI research engine that gathers web and document evidence and
+- An AI research engine that gathers web, news, and document evidence and
   synthesizes a structured, source-backed report (Gemini + Google Search
-  grounding).
+  grounding + NewsAPI for recent news).
+- News research via `NewsResearchAgent`: derives focused search queries,
+  retrieves recent articles from NewsAPI, normalizes them into
+  evidence with real provenance, and feeds them into synthesis. Falls back
+  honestly (no fabricated articles) when `NEWS_API_KEY` is missing or the
+  provider is unavailable.
 - Data models for `User`, `Research`, `Document`, `Source`, `ResearchResult`.
 - `.env.example` — no secrets committed.
 
@@ -71,8 +81,8 @@ MarketIQ/
 │   │   ├── models/               # User, Research, Document, Source, ResearchResult
 │   │   ├── schemas/               # Pydantic request/response models
 │   │   ├── api/                   # health.py, dashboard.py, documents.py, research.py
-│   │   ├── agents/               # research, web-research, document-research, synthesis agents
-│   │   └── services/             # llm, embeddings, vector_store, chunking, rag, parsers/, research/
+│   │   ├── agents/               # research, web-research, news-research, document-research, synthesis agents
+│   │   └── services/             # llm, embeddings, vector_store, chunking, rag, parsers/, news/, research/
 │   ├── requirements.txt
 │   └── .env.example
 ├── frontend/
@@ -91,8 +101,9 @@ MarketIQ/
 | 2 | Basic research API (query → LLM → response) | Complete |
 | 3 | Document ingestion (PDF/TXT/DOCX/CSV → chunks) | Complete |
 | 4 | RAG pipeline (retrieval → context → answer + sources) | Complete |
-| 5 | News research | Next |
-| 6–9 | Competitor, Sentiment, Trend, Insight/Report agents | Planned |
+| 5 | News research (NewsAPI, recent-news evidence, provenance) | Complete |
+| 6 | Competitor research | Next |
+| 7–9 | Sentiment, Trend, Insight/Report agents | Planned |
 | 10–13 | Full dashboard, research history, follow-up Q&A, polish | Planned |
 
 Each step will be built, run, and tested before moving to the next — no
