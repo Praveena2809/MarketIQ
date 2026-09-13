@@ -54,6 +54,17 @@ class OpportunityItem(BaseModel):
     potential_impact: str = "medium"
 
 
+class RecommendationItem(BaseModel):
+    recommendation: str
+    rationale: str = ""
+    priority: str = "medium"  # high | medium | low (qualitative label)
+    category: str = ""  # optional grouping (strategy | product | market | risk | ...)
+    # Evidence IDs backing this recommendation (Step 9, additive optional).
+    # Derived server-side from verified evidence IDs (web | news | document | competitor).
+    evidence: List[str] = Field(default_factory=list)
+    source_types: List[str] = Field(default_factory=list)
+
+
 class SentimentItem(BaseModel):
     label: str = "unavailable"  # positive | neutral | negative | mixed | unavailable
     evidence: List[str] = Field(default_factory=list)
@@ -85,6 +96,7 @@ class ResearchSynthesisSchema(BaseModel):
     competitors: List[CompetitorItem] = Field(default_factory=list)
     conclusion: str = ""
     sentiment: Optional[SentimentSchema] = None  # Step 7, additive optional.
+    recommendations: List[RecommendationItem] = Field(default_factory=list)  # Step 9, additive optional.
     source_ids: List[str] = Field(default_factory=list)
 
 

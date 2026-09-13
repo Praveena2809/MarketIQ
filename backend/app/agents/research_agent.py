@@ -1,6 +1,7 @@
 """
 Coordinator Research Agent orchestrating Web Research, News Research, Document RAG,
-Competitor Research, and Synthesis.
+Competitor Research, Sentiment Research, Trend Research, Insight & Recommendation
+Research, and Synthesis.
 """
 from typing import List, Optional, Tuple
 from app.agents.web_research_agent import WebResearchAgent
@@ -9,6 +10,7 @@ from app.agents.document_research_agent import DocumentResearchAgent
 from app.agents.competitor_research_agent import CompetitorResearchAgent
 from app.agents.sentiment_research_agent import SentimentResearchAgent
 from app.agents.trend_research_agent import TrendResearchAgent
+from app.agents.insight_research_agent import InsightResearchAgent
 from app.agents.synthesis_agent import SynthesisAgent
 from app.services.research.evidence import Evidence
 from app.schemas.research import ResearchSynthesisSchema
@@ -28,6 +30,7 @@ class ResearchAgent:
         self.competitor_agent = CompetitorResearchAgent()
         self.sentiment_agent = SentimentResearchAgent()
         self.trend_agent = TrendResearchAgent()
+        self.insight_agent = InsightResearchAgent()
         self.synthesis_agent = SynthesisAgent()
 
     def execute_research(
@@ -43,8 +46,12 @@ class ResearchAgent:
         5. Runs categorical, evidence-grounded sentiment analysis over the
            combined evidence pool (web + news + document + competitor).
         6. Runs evidence-grounded trend analysis over the same combined pool.
-        7. Synthesizes findings using Gemini.
-        8. Returns structured report and all combined evidence.
+        7. Runs evidence-grounded insight & recommendation analysis over the
+           same combined pool, consuming the verified competitor names,
+           sentiment, and (only when verified) trend outputs. It never
+           re-runs any gathering pass.
+        8. Synthesizes findings using Gemini.
+        9. Returns structured report and all combined evidence.
 
         Trend behavior (Step 8): verified trends from step 6 REPLACE the
         synthesis-produced trends whenever the trend pass completes
@@ -54,6 +61,16 @@ class ResearchAgent:
         malformed output) are the synthesis-produced trends preserved as the
         fail-soft fallback, with an honest warning merged into the report's
         warning notes.
+
+        Insight behavior (Step 9): only the trends from a SUCCESSFUL trend pass
+        (step 6) are passed to the insight pass as authoritative; synthesis-
+        produced default trends are never treated as verified trend evidence.
+        Key findings from a successful insight pass REPLACE the synthesis-
+        produced key_findings, including when the pass verifiably finds zero
+        evidence-supported items (replaced with an empty list). On an
+        unsuccessful insight pass the synthesis key_findings are preserved and
+        recommendations stay empty, with an honest warning merged into the
+        report's warning notes.
         """
         # 1. Gather web evidence
         web_evidence, warning_note = self.web_agent.gather_web_evidence(query)
@@ -91,7 +108,21 @@ class ResearchAgent:
             evidence_pool=all_evidence,
         )
 
-        # 7. Synthesize report grounded in web + news + document + competitor evidence
+        # 7. Evidence-grounded insight & recommendation analysis over the same
+        #    combined pool, consuming the verified competitor/sentiment/trend
+        #    outputs. Exactly one Gemini call; no new evidence is gathered.
+        #    Only authoritative (successful) verified trends feed the insight
+        #    pass; synthesis defaults are never treated as verified trend
+        #    evidence.
+        insight_research = self.insight_agent.execute_insight_research(
+            query=query,
+            evidence_pool=all_evidence,
+            competitors=competitor_research.identified,
+            sentiment=sentiment_research.sentiment,
+            trends=trend_research.trends if trend_research.success else None,
+        )
+
+        # 8. Synthesize report grounded in web + news + document + competitor evidence
         report = self.synthesis_agent.generate_report(
             query=query,
             web_evidence=web_evidence,
@@ -101,16 +132,25 @@ class ResearchAgent:
             warning_notes=_combine_warnings(
                 warning_note, news_warning, competitor_research.warning,
                 sentiment_research.warning, trend_research.warning,
+                insight_research.warning,
             ),
         )
 
-        # 7b. Attach sentiment (additive optional field; None stays a no-op).
+        # 8b. Attach sentiment (additive optional field; None stays a no-op).
         report.sentiment = sentiment_research.sentiment
 
-        # 8. Successful trend pass wins, including an empty verified result
-        #    (no evidence-supported trends). Unsuccessful passes leave the
-        #    synthesis-produced trends as the fail-soft fallback.
+        # 8c. Successful trend pass wins, including an empty verified result
+        #     (no evidence-supported trends). Unsuccessful passes leave the
+        #     synthesis-produced trends as the fail-soft fallback.
         if trend_research.success:
             report.trends = trend_research.trends
+
+        # 9. Successful insight pass wins, including an authoritative empty
+        #    result (no evidence-supported insights or recommendations).
+        #    Unsuccessful passes preserve the synthesis key_findings and leave
+        #    recommendations empty (no fabricated advice).
+        if insight_research.success:
+            report.key_findings = insight_research.insights
+            report.recommendations = insight_research.recommendations
 
         return report, all_evidence
