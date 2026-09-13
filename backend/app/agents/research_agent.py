@@ -8,6 +8,7 @@ from app.agents.news_research_agent import NewsResearchAgent
 from app.agents.document_research_agent import DocumentResearchAgent
 from app.agents.competitor_research_agent import CompetitorResearchAgent
 from app.agents.sentiment_research_agent import SentimentResearchAgent
+from app.agents.trend_research_agent import TrendResearchAgent
 from app.agents.synthesis_agent import SynthesisAgent
 from app.services.research.evidence import Evidence
 from app.schemas.research import ResearchSynthesisSchema
@@ -26,6 +27,7 @@ class ResearchAgent:
         self.doc_agent = DocumentResearchAgent()
         self.competitor_agent = CompetitorResearchAgent()
         self.sentiment_agent = SentimentResearchAgent()
+        self.trend_agent = TrendResearchAgent()
         self.synthesis_agent = SynthesisAgent()
 
     def execute_research(
@@ -40,8 +42,18 @@ class ResearchAgent:
         4. Runs competitor research over the combined existing evidence pool.
         5. Runs categorical, evidence-grounded sentiment analysis over the
            combined evidence pool (web + news + document + competitor).
-        6. Synthesizes findings using Gemini.
-        7. Returns structured report and all combined evidence.
+        6. Runs evidence-grounded trend analysis over the same combined pool.
+        7. Synthesizes findings using Gemini.
+        8. Returns structured report and all combined evidence.
+
+        Trend behavior (Step 8): verified trends from step 6 REPLACE the
+        synthesis-produced trends whenever the trend pass completes
+        successfully, including when it verifiably finds zero evidence-
+        supported trends (replaced with an empty list). Only on an
+        unsuccessful trend pass (insufficient evidence, quota, exception,
+        malformed output) are the synthesis-produced trends preserved as the
+        fail-soft fallback, with an honest warning merged into the report's
+        warning notes.
         """
         # 1. Gather web evidence
         web_evidence, warning_note = self.web_agent.gather_web_evidence(query)
@@ -72,7 +84,14 @@ class ResearchAgent:
             competitors=competitor_research.identified,
         )
 
-        # 6. Synthesize report grounded in web + news + document + competitor evidence
+        # 6. Evidence-grounded trend analysis over the same combined pool.
+        #    Exactly one Gemini call; no new evidence is gathered.
+        trend_research = self.trend_agent.execute_trend_research(
+            query=query,
+            evidence_pool=all_evidence,
+        )
+
+        # 7. Synthesize report grounded in web + news + document + competitor evidence
         report = self.synthesis_agent.generate_report(
             query=query,
             web_evidence=web_evidence,
@@ -81,11 +100,17 @@ class ResearchAgent:
             competitor_contexts=competitor_research.contexts,
             warning_notes=_combine_warnings(
                 warning_note, news_warning, competitor_research.warning,
-                sentiment_research.warning,
+                sentiment_research.warning, trend_research.warning,
             ),
         )
 
-        # 7. Attach sentiment (additive optional field; None stays a no-op).
+        # 7b. Attach sentiment (additive optional field; None stays a no-op).
         report.sentiment = sentiment_research.sentiment
+
+        # 8. Successful trend pass wins, including an empty verified result
+        #    (no evidence-supported trends). Unsuccessful passes leave the
+        #    synthesis-produced trends as the fail-soft fallback.
+        if trend_research.success:
+            report.trends = trend_research.trends
 
         return report, all_evidence

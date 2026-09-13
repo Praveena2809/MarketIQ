@@ -17,9 +17,21 @@ export default function TrendsPage() {
     for (const report of details ?? []) {
       for (const t of report.result?.trends ?? []) {
         if (!t.trend) continue
-        const entry = map.get(t.trend) || { trend: t.trend, impact: t.impact, description: t.description, mentions: 0 }
+        const entry = map.get(t.trend) || {
+          trend: t.trend,
+          impact: t.impact,
+          description: t.description,
+          evidence: [],
+          source_types: [],
+          direction: t.direction,
+          as_of: t.as_of,
+          mentions: 0,
+        }
         entry.mentions += 1
         if (!entry.description && t.description) entry.description = t.description
+        if (t.evidence?.length) entry.evidence = Array.from(new Set([...entry.evidence, ...t.evidence]))
+        if (t.source_types?.length) entry.source_types = Array.from(new Set([...entry.source_types, ...t.source_types]))
+        if (t.direction) entry.direction = t.direction
         map.set(t.trend, entry)
       }
     }

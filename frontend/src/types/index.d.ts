@@ -37,6 +37,10 @@ export interface Trend {
   trend: string
   impact: 'high' | 'medium' | 'low'
   description: string
+  evidence?: string[]
+  source_types?: string[]
+  direction?: 'rising' | 'stable' | 'declining' | 'mixed' | ''
+  as_of?: string | null
 }
 
 export interface Risk {

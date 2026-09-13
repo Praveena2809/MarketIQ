@@ -386,7 +386,22 @@ def test_research_engine_completed_lifecycle(monkeypatch):
     )
 
     llm = get_llm_service()
-    monkeypatch.setattr(llm, "generate_json", lambda prompt, **kwargs: _valid_synthesis_json())
+    # Dispatch: the Step 8 trend pass returns verified evidence-grounded
+    # trends; every other Gemini call returns the synthesis payload.
+    def fake_generate_json(prompt, **kwargs):
+        if "Trend Analysis Engine" in (kwargs.get("system_instruction") or ""):
+            return json.dumps({
+                "trends": [{
+                    "trend": "Agentic AI adoption",
+                    "impact": "high",
+                    "description": "Rising enterprise adoption.",
+                    "direction": "rising",
+                    "evidence": ["web_1"],
+                }]
+            })
+        return _valid_synthesis_json()
+
+    monkeypatch.setattr(llm, "generate_json", fake_generate_json)
 
     db = SessionLocal()
     engine = get_research_engine()
@@ -405,6 +420,10 @@ def test_research_engine_completed_lifecycle(monkeypatch):
         assert result.summary == "The enterprise AI market is expanding quickly."
         assert len(result.insights) == 1
         assert len(result.trends) == 1
+        # Verified Step 8 trend replaced the synthesis default, carrying
+        # server-derived provenance for a pool-existing Evidence ID.
+        assert result.trends[0].get("evidence") == ["web_1"]
+        assert result.trends[0].get("source_types") == ["web"]
         assert len(result.competitors) == 1
 
         sources = db.query(Source).filter(Source.research_id == record.id).all()

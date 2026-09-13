@@ -2,6 +2,24 @@ from dataclasses import dataclass
 from typing import Optional
 
 
+def resolve_evidence_source_type(
+    evidence_id: str, pool: "dict[str, Evidence]"
+) -> Optional[str]:
+    """
+    Shared provenance helper (Step 8). Resolves the source-type tag for a
+    verified evidence ID:
+    - competitor-scoped evidence IDs (comp_*) always map to "competitor",
+    - everything else uses the item's own source_type (web/news/document),
+    - unknown/fabricated IDs resolve to None (callers drop them).
+    """
+    item = pool.get(evidence_id)
+    if item is None:
+        return None
+    if evidence_id.startswith("comp_"):
+        return "competitor"
+    return item.source_type
+
+
 @dataclass
 class Evidence:
     evidence_id: str

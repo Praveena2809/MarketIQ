@@ -35,6 +35,12 @@ class TrendItem(BaseModel):
     trend: str
     impact: str = "medium"  # high | medium | low
     description: str = ""
+    # Step 8 (additive): evidence-grounded trend provenance. All optional so
+    # pre-Step-8 records and the synthesis fallback shape stay valid.
+    evidence: List[str] = Field(default_factory=list)
+    source_types: List[str] = Field(default_factory=list)
+    direction: str = ""  # rising | stable | declining | mixed
+    as_of: Optional[str] = None
 
 
 class RiskItem(BaseModel):
