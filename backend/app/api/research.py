@@ -19,8 +19,11 @@ from app.schemas.research import (
     OpportunityItem,
     CompetitorItem,
     SentimentSchema,
+    FollowUpRequest,
+    FollowUpResponse,
 )
 from app.services.research.research_engine import get_research_engine
+from app.services.research.follow_up import get_follow_up_service
 
 router = APIRouter()
 settings = get_settings()
@@ -103,6 +106,46 @@ def get_research_history(
         )
         for r in rows
     ]
+
+
+@router.post("/{research_id}/follow-up", response_model=FollowUpResponse)
+def ask_follow_up(
+    research_id: str,
+    req: FollowUpRequest,
+    db: Session = Depends(get_db),
+) -> FollowUpResponse:
+    question = req.question.strip()
+    if not question:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Follow-up question cannot be empty.",
+        )
+
+    r = db.scalar(select(Research).where(Research.id == research_id))
+    if not r:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Research job '{research_id}' not found.",
+        )
+    if r.status.value != "completed":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Follow-up research is only available for completed research.",
+        )
+    if r.result is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Research has no stored result to answer from.",
+        )
+
+    service = get_follow_up_service()
+    result = service.answer(question=question, research=r)
+
+    return FollowUpResponse(
+        answer=result.answer,
+        insufficient_evidence=result.insufficient_evidence,
+        sources=result.sources,
+    )
 
 
 @router.get("/{research_id}", response_model=ResearchResponse)

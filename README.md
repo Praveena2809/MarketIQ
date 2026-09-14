@@ -107,8 +107,9 @@ MarketIQ/
 | 6 | Competitor research | Complete |
 | 7–9 | Sentiment, Trend, Insight/Report agents | Complete |
 | 10 | Full dashboard | Complete |
-| 11 | Research history | Next |
-| 12–13 | Follow-up Q&A, polish | Planned |
+| 11 | Research history | Complete |
+| 12 | Follow-up Q&A | Next |
+| 13 | Polish | Planned |
 
 Each step will be built, run, and tested before moving to the next — no
 half-finished features left in place.

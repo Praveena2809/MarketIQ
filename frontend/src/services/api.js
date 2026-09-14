@@ -48,6 +48,11 @@ export const researchApi = {
     const { data } = await http.get('/research/history', { params: { limit, offset } })
     return data
   },
+
+  async followUp(id, question) {
+    const { data } = await http.post(`/research/${id}/follow-up`, { question })
+    return data
+  },
 }
 
 // ------------------------------- Documents --------------------------------

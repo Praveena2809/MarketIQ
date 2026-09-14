@@ -133,6 +133,12 @@ export interface ResearchRequest {
   document_ids?: string[]
 }
 
+export interface FollowUpResponse {
+  answer: string
+  insufficient_evidence: boolean
+  sources: Source[]
+}
+
 export interface DocumentResponse {
   id: string
   filename: string

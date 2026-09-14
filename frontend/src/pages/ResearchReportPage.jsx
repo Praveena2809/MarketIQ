@@ -267,9 +267,11 @@ function ReportContent({ report }) {
         </div>
       </section>
 
-      <section className="mt-10">
-        <FollowUpBox query={report.query} />
-      </section>
+      {report.status !== 'failed' && (
+        <section className="mt-10">
+          <FollowUpBox researchId={report.research_id} query={report.query} />
+        </section>
+      )}
     </>
   )
 }

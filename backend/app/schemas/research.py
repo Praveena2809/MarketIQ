@@ -114,6 +114,16 @@ class SourceSchema(BaseModel):
     published_at: Optional[datetime] = None
 
 
+class FollowUpRequest(BaseModel):
+    question: str
+
+
+class FollowUpResponse(BaseModel):
+    answer: str
+    insufficient_evidence: bool = False
+    sources: List[SourceSchema] = Field(default_factory=list)
+
+
 class ResearchResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
