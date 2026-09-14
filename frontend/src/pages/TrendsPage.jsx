@@ -3,6 +3,7 @@ import { TrendingUp } from 'lucide-react'
 import useRecentReports from '../hooks/useRecentReports'
 import TrendCard from '../components/TrendCard'
 import EmptyState from '../components/EmptyState'
+import InlineError from '../components/InlineError'
 
 /*
  * Aggregates trends across completed reports, deduplicated by name. The backend
@@ -48,9 +49,7 @@ export default function TrendsPage() {
       </p>
 
       {error && (
-        <p className="mt-6 rounded-lg border border-negative-soft bg-negative-soft px-4 py-3 text-[0.875rem] text-negative">
-          {error}
-        </p>
+        <InlineError className="mt-6">{error}</InlineError>
       )}
 
       <div className="mt-7">
@@ -60,7 +59,7 @@ export default function TrendsPage() {
               <div key={i} className="h-24 rounded-xl border border-hairline bg-panel" />
             ))}
           </div>
-        ) : trends.length === 0 ? (
+        ) : !error && trends.length === 0 ? (
           <EmptyState
             title="Trend data unavailable"
             description="Run market or industry-trend research to surface trends. The engine reports trends only when grounded evidence supports them."

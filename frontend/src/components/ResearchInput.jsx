@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowRight, Compass } from 'lucide-react'
+import { ArrowRight, Compass, Loader2 } from 'lucide-react'
 
 /*
  * Large research intake input used on the Dashboard hero.
@@ -45,7 +45,7 @@ export default function ResearchInput({
         >
           {submitting ? (
             <>
-              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+              <Loader2 size={15} strokeWidth={2} className="animate-spin" />
               Analyzing…
             </>
           ) : (

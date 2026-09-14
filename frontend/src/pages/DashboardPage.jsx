@@ -13,6 +13,7 @@ import { getStats, getRecentResearch } from '../services/api'
 import { typeLabel } from '../lib/format'
 import StatPanel from '../components/StatPanel'
 import ResearchInput from '../components/ResearchInput'
+import InlineError from '../components/InlineError'
 import { RecentResearchCard, RecentResearchEmpty } from '../components/RecentResearchCard'
 
 const statItems = [
@@ -99,11 +100,11 @@ export default function DashboardPage() {
   return (
     <div className="mx-auto max-w-4xl px-6 py-12 lg:px-10">
       <section className="text-center">
-        <p className="font-serif text-3xl leading-tight text-ink">
+        <h2 className="font-serif text-3xl leading-tight text-ink">
           Market intelligence,
           <br />
           <span className="italic text-evidence">powered by AI.</span>
-        </p>
+        </h2>
         <p className="mx-auto mt-4 max-w-xl text-[0.95rem] leading-relaxed text-ink-soft">
           Ask about a market, industry, competitor, or product — MarketIQ grounds its research in
           live sources and your own uploaded documents, then synthesizes an actionable briefing.
@@ -115,9 +116,7 @@ export default function DashboardPage() {
       </section>
 
       {error && (
-        <p className="mt-8 rounded-lg border border-negative-soft bg-negative-soft px-4 py-3 text-[0.875rem] text-negative">
-          {error}
-        </p>
+        <InlineError className="mt-8">{error}</InlineError>
       )}
 
       <section className="mt-12">

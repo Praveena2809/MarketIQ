@@ -5,6 +5,7 @@ import useResearchHistory from '../hooks/useResearchHistory'
 import { RESEARCH_TYPES, typeLabel, formatDate } from '../lib/format'
 import StatusBadge from '../components/StatusBadge'
 import EmptyState from '../components/EmptyState'
+import InlineError from '../components/InlineError'
 
 const sortOptions = [
   { value: 'newest', label: 'Newest first' },
@@ -50,9 +51,7 @@ export default function ReportsPage() {
       </p>
 
       {error && (
-        <p className="mt-6 rounded-lg border border-negative-soft bg-negative-soft px-4 py-3 text-[0.875rem] text-negative">
-          {error}
-        </p>
+        <InlineError className="mt-6">{error}</InlineError>
       )}
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -71,6 +70,7 @@ export default function ReportsPage() {
             {statusFilters.map((f) => (
               <button
                 key={f.value}
+                aria-pressed={statusFilter === f.value}
                 onClick={() => setStatusFilter(f.value)}
                 className={`rounded-md px-3 py-1.5 text-[0.78rem] transition-colors ${
                   statusFilter === f.value ? 'bg-evidence-soft font-medium text-evidence' : 'text-ink-soft hover:text-ink'
@@ -96,6 +96,7 @@ export default function ReportsPage() {
         {typeFilters.map((t) => (
           <button
             key={t.value}
+            aria-pressed={typeFilter === t.value}
             onClick={() => setTypeFilter(t.value)}
             className={`rounded-full border px-3 py-1 text-[0.78rem] transition-colors ${
               typeFilter === t.value
@@ -116,7 +117,7 @@ export default function ReportsPage() {
             ))}
           </div>
         )}
-        {!loading && filtered.length === 0 && (
+        {!loading && !error && filtered.length === 0 && (
           <EmptyState
             title={search || statusFilter !== 'all' || typeFilter !== 'all' ? 'No matching reports' : 'No reports yet'}
             description={

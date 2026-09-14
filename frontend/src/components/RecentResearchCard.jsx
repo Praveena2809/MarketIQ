@@ -1,12 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { FileSearch } from 'lucide-react'
-
-const typeLabels = {
-  market_analysis: 'Market Analysis',
-  competitor_analysis: 'Competitor Analysis',
-  product_analysis: 'Product Analysis',
-  industry_trends: 'Industry Trends',
-}
+import { typeLabel } from '../lib/format'
 
 function timeAgo(isoString) {
   const diffMs = Date.now() - new Date(isoString).getTime()
@@ -28,7 +22,7 @@ export function RecentResearchCard({ research }) {
     >
       <p className="font-serif text-[1.05rem] text-ink">{research.query}</p>
       <div className="mt-2 flex items-center justify-between text-[0.8rem] text-ink-soft">
-        <span>{typeLabels[research.research_type] ?? research.research_type}</span>
+        <span>{typeLabel(research.research_type)}</span>
         <span>Updated {timeAgo(research.updated_at)}</span>
       </div>
     </button>

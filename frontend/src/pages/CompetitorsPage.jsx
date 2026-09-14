@@ -3,6 +3,7 @@ import { Building2 } from 'lucide-react'
 import useRecentReports from '../hooks/useRecentReports'
 import CompetitorCard from '../components/CompetitorCard'
 import EmptyState from '../components/EmptyState'
+import InlineError from '../components/InlineError'
 
 function uniq(items) {
   const seen = new Set()
@@ -48,9 +49,7 @@ export default function CompetitorsPage() {
       </p>
 
       {error && (
-        <p className="mt-6 rounded-lg border border-negative-soft bg-negative-soft px-4 py-3 text-[0.875rem] text-negative">
-          {error}
-        </p>
+        <InlineError className="mt-6">{error}</InlineError>
       )}
 
       <div className="mt-7">
@@ -60,7 +59,7 @@ export default function CompetitorsPage() {
               <div key={i} className="h-40 rounded-xl border border-hairline bg-panel" />
             ))}
           </div>
-        ) : competitors.length === 0 ? (
+        ) : !error && competitors.length === 0 ? (
           <EmptyState
             title="Competitor data unavailable"
             description="Run competitor or market research to build profiles. The backend reports ties between competitors and their reported strengths and weaknesses when evidence supports it."

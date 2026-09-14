@@ -18,6 +18,7 @@ import { researchApi } from '../services/api'
  */
 export default function FollowUpBox({ researchId, query }) {
   const [question, setQuestion] = useState('')
+  const [asked, setAsked] = useState('')
   const [status, setStatus] = useState('idle') // idle | loading | ready | error
   const [answer, setAnswer] = useState('')
   const [insufficient, setInsufficient] = useState(false)
@@ -31,6 +32,7 @@ export default function FollowUpBox({ researchId, query }) {
     if (!canAsk) return
     setStatus('loading')
     setError(null)
+    setAsked(question.trim())
     try {
       const data = await researchApi.followUp(researchId, question.trim())
       setAnswer(data.answer)
@@ -77,7 +79,11 @@ export default function FollowUpBox({ researchId, query }) {
       </form>
 
       {status === 'loading' && (
-        <div className="mt-4 flex items-center gap-2 text-[0.82rem] text-ink-soft">
+        <div
+          role="status"
+          aria-live="polite"
+          className="mt-4 flex items-center gap-2 text-[0.82rem] text-ink-soft"
+        >
           <Loader2 size={15} strokeWidth={1.75} className="animate-spin text-evidence" />
           Answering from the research context…
         </div>
@@ -94,7 +100,7 @@ export default function FollowUpBox({ researchId, query }) {
       )}
 
       {status === 'ready' && (
-        <div className="mt-4">
+        <div role="status" aria-live="polite" className="mt-4">
           {insufficient && (
             <div className="mb-3 flex items-start gap-2 rounded-lg bg-signal-soft px-3.5 py-3 text-[0.82rem] leading-relaxed text-ink-soft">
               <Info size={15} strokeWidth={1.75} className="mt-0.5 shrink-0 text-signal" />
@@ -103,6 +109,12 @@ export default function FollowUpBox({ researchId, query }) {
                 question. The model response below states what is missing.
               </p>
             </div>
+          )}
+
+          {asked && (
+            <p className="mb-2 px-1 text-[0.8rem] font-medium text-ink-soft">
+              Q: {asked}
+            </p>
           )}
 
           <div className="rounded-lg bg-paper px-4 py-3.5">

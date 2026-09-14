@@ -4,6 +4,7 @@ import useRecentReports from '../hooks/useRecentReports'
 import { typeLabel, formatDate } from '../lib/format'
 import EmptyState from '../components/EmptyState'
 import SentimentCard from '../components/SentimentCard'
+import InlineError from '../components/InlineError'
 
 /*
  * Sentiment view backed by the backend's categorical, evidence-grounded
@@ -37,9 +38,7 @@ export default function SentimentPage() {
       </div>
 
       {error && (
-        <p className="mt-5 rounded-lg border border-negative-soft bg-negative-soft px-4 py-3 text-[0.875rem] text-negative">
-          {error}
-        </p>
+        <InlineError className="mt-5">{error}</InlineError>
       )}
 
       <div className="mt-6">
@@ -49,7 +48,7 @@ export default function SentimentPage() {
               <div key={i} className="h-32 rounded-xl border border-hairline bg-panel" />
             ))}
           </div>
-        ) : reports.length === 0 ? (
+        ) : !error && reports.length === 0 ? (
           <EmptyState
             title="No sentiment insights yet"
             description="Reports with categorical sentiment data appear here. Run research to populate this view."

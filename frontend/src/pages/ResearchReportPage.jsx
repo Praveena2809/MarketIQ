@@ -14,11 +14,13 @@ import EmptyState from '../components/EmptyState'
 import FollowUpBox from '../components/FollowUpBox'
 
 /*
- * Phase 3 overview: the backend grounds research with live web search (Google
- * Search via Gemini, currently rate-limited / quota-exhausted) plus uploaded
- * documents. When no grounded sources are available the synthesis falls back to
- * an explicit "insufficient evidence" shape. This page renders exactly what the
- * backend returns - it never invents sources, figures or scores.
+ * Report detail view. Renders exactly what the backend returns: the
+ * executive summary, key insights, market overview, trends, opportunities,
+ * risks, competitor profiles, conclusion and recorded sources produced by the
+ * multi-agent pipeline (web + news + document RAG + competitor + sentiment +
+ * trend + insight passes), plus the Step 12 follow-up Q&A box. It never
+ * invents sources, figures or scores - unavailable sections show honest
+ * empty states.
  */
 
 function ProseBlock({ label, children }) {
@@ -138,7 +140,7 @@ function ReportContent({ report }) {
           </span>
           <span className="text-[0.78rem] text-ink-soft">Generated {formatDate(report.created_at)}</span>
         </div>
-        <h1 className="mt-4 font-serif text-2xl leading-snug text-ink lg:text-[1.7rem]">{report.query}</h1>
+        <h2 className="mt-4 font-serif text-2xl leading-snug text-ink lg:text-[1.7rem]">{report.query}</h2>
       </header>
 
       {hasNoGroundedEvidence && (

@@ -4,6 +4,7 @@ import { ArrowRight, FileUp, FileText, CheckCircle2, Loader2 } from 'lucide-reac
 import { researchApi, documentsApi } from '../services/api'
 import { RESEARCH_TYPES } from '../lib/format'
 import ResearchProgress from '../components/ResearchProgress'
+import InlineError from '../components/InlineError'
 
 const DOC_STATUS = {
   completed: { label: 'Ready', cls: 'bg-evidence-soft text-evidence' },
@@ -104,9 +105,7 @@ export default function NewResearchPage() {
       </p>
 
       {runError && (
-        <p className="mt-6 rounded-lg border border-negative-soft bg-negative-soft px-4 py-3 text-[0.875rem] text-negative">
-          {runError}
-        </p>
+        <InlineError className="mt-6">{runError}</InlineError>
       )}
 
       {phase === 'running' ? (
@@ -155,6 +154,7 @@ export default function NewResearchPage() {
                   <button
                     key={value}
                     type="button"
+                    aria-pressed={researchType === value}
                     onClick={() => setResearchType(value)}
                     className={`rounded-lg border px-3.5 py-3 text-left text-[0.9rem] transition-colors ${
                       researchType === value

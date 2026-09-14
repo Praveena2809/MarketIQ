@@ -3,6 +3,7 @@ import { Library, Search } from 'lucide-react'
 import useRecentReports from '../hooks/useRecentReports'
 import SourceCard from '../components/SourceCard'
 import EmptyState from '../components/EmptyState'
+import InlineError from '../components/InlineError'
 
 const typeFilters = [
   { value: 'all', label: 'All' },
@@ -44,9 +45,7 @@ export default function SourcesPage() {
       </p>
 
       {error && (
-        <p className="mt-6 rounded-lg border border-negative-soft bg-negative-soft px-4 py-3 text-[0.875rem] text-negative">
-          {error}
-        </p>
+        <InlineError className="mt-6">{error}</InlineError>
       )}
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -64,6 +63,7 @@ export default function SourcesPage() {
           {typeFilters.map((f) => (
             <button
               key={f.value}
+              aria-pressed={filter === f.value}
               onClick={() => setFilter(f.value)}
               className={`rounded-md px-3 py-1.5 text-[0.78rem] transition-colors ${
                 filter === f.value ? 'bg-evidence-soft font-medium text-evidence' : 'text-ink-soft hover:text-ink'
@@ -82,7 +82,7 @@ export default function SourcesPage() {
               <div key={i} className="h-20 rounded-xl border border-hairline bg-panel" />
             ))}
           </div>
-        ) : sources.length === 0 ? (
+        ) : !error && sources.length === 0 ? (
           <EmptyState
             title={search || filter !== 'all' ? 'No matching sources' : 'No sources recorded'}
             description={
