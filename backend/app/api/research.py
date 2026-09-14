@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -7,6 +7,7 @@ from app.core.config import get_settings
 from app.core.database import get_db
 from app.models.research import Research
 from app.models.source import Source
+from app.schemas.dashboard import ResearchCard
 from app.schemas.research import (
     ResearchRequest,
     ResearchResponse,
@@ -81,6 +82,27 @@ def create_research(
     )
 
     return _format_research_response(research_record)
+
+
+@router.get("/history", response_model=list[ResearchCard])
+def get_research_history(
+    limit: int = Query(25, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+) -> list[ResearchCard]:
+    rows = db.scalars(
+        select(Research).order_by(Research.updated_at.desc()).offset(offset).limit(limit)
+    ).all()
+    return [
+        ResearchCard(
+            id=r.id,
+            query=r.query,
+            research_type=r.research_type.value,
+            status=r.status.value,
+            updated_at=r.updated_at,
+        )
+        for r in rows
+    ]
 
 
 @router.get("/{research_id}", response_model=ResearchResponse)

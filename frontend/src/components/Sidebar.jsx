@@ -4,7 +4,7 @@ import { X, LayoutDashboard, SearchCode, FileBarChart, Building2, TrendingUp, Sm
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/research/new', label: 'New Research', icon: SearchCode },
-  { to: '/reports', label: 'Reports', icon: FileBarChart },
+  { to: '/reports', label: 'History', icon: FileBarChart },
   { to: '/competitors', label: 'Competitors', icon: Building2 },
   { to: '/trends', label: 'Trends', icon: TrendingUp },
   { to: '/sentiment', label: 'Sentiment', icon: Smile },

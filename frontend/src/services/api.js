@@ -43,6 +43,11 @@ export const researchApi = {
     const { data } = await http.get('/research/recent', { params: { limit } })
     return data
   },
+
+  async history({ limit = 25, offset = 0 } = {}) {
+    const { data } = await http.get('/research/history', { params: { limit, offset } })
+    return data
+  },
 }
 
 // ------------------------------- Documents --------------------------------

@@ -4,7 +4,7 @@ import { Menu } from 'lucide-react'
 const TITLES = {
   '/': 'Dashboard',
   '/research/new': 'New Research',
-  '/reports': 'Research Reports',
+  '/reports': 'Research History',
   '/competitors': 'Competitor Analysis',
   '/trends': 'Industry Trends',
   '/sentiment': 'Sentiment Insights',

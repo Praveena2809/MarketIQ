@@ -23,9 +23,8 @@ The core platform is built, run, and tested end-to-end. Current completion:
   research pipeline; gracefully falls back when the provider is unconfigured
   or unreachable. No new Python dependencies added.
 
-Next development milestone: **Full Dashboard** — aggregate the completed engine
-outputs (insights, opportunities, risks, sentiment, research types, source
-types) into the dashboard's quick statistics and distribution view.
+Next development milestone: **Research History** — page through every research
+run with search, status and research-type filters, and load-more pagination.
 
 What exists right now:
 - React (Vite) frontend with routing, the left navigation rail, and a real
@@ -107,8 +106,9 @@ MarketIQ/
 | 5 | News research (NewsAPI, recent-news evidence, provenance) | Complete |
 | 6 | Competitor research | Complete |
 | 7–9 | Sentiment, Trend, Insight/Report agents | Complete |
-| 10 | Full dashboard | Next |
-| 11–13 | Research history, follow-up Q&A, polish | Planned |
+| 10 | Full dashboard | Complete |
+| 11 | Research history | Next |
+| 12–13 | Follow-up Q&A, polish | Planned |
 
 Each step will be built, run, and tested before moving to the next — no
 half-finished features left in place.

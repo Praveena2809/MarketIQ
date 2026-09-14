@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, FileBarChart } from 'lucide-react'
-import useRecentReports from '../hooks/useRecentReports'
-import { typeLabel, formatDate } from '../lib/format'
+import useResearchHistory from '../hooks/useResearchHistory'
+import { RESEARCH_TYPES, typeLabel, formatDate } from '../lib/format'
 import StatusBadge from '../components/StatusBadge'
 import EmptyState from '../components/EmptyState'
 
@@ -18,29 +18,33 @@ const statusFilters = [
   { value: 'failed', label: 'Failed' },
 ]
 
+const typeFilters = [{ value: 'all', label: 'All' }, ...RESEARCH_TYPES]
+
 export default function ReportsPage() {
   const navigate = useNavigate()
-  const { cards, error, loading } = useRecentReports({ limit: 50 })
+  const { cards, error, loading, loadingMore, hasMore, loadMore } = useResearchHistory({ pageSize: 25 })
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState('newest')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [typeFilter, setTypeFilter] = useState('all')
 
   const filtered = useMemo(() => {
     if (!cards) return []
     const q = search.trim().toLowerCase()
     return cards
       .filter((r) => (statusFilter === 'all' ? true : r.status === statusFilter))
+      .filter((r) => (typeFilter === 'all' ? true : r.research_type === typeFilter))
       .filter((r) => !q || r.query.toLowerCase().includes(q))
       .sort((a, b) => {
         if (sort === 'az') return a.query.localeCompare(b.query)
         if (sort === 'oldest') return new Date(a.updated_at) - new Date(b.updated_at)
         return new Date(b.updated_at) - new Date(a.updated_at)
       })
-  }, [cards, search, sort, statusFilter])
+  }, [cards, search, sort, statusFilter, typeFilter])
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-10 lg:px-10">
-      <h2 className="font-serif text-2xl text-ink">Reports</h2>
+      <h2 className="font-serif text-2xl text-ink">Research History</h2>
       <p className="mt-1 text-[0.9rem] text-ink-soft">
         Every research run, stored with its full synthesis and sources.
       </p>
@@ -62,7 +66,7 @@ export default function ReportsPage() {
             className="w-full bg-transparent text-[0.875rem] text-ink placeholder:text-ink-soft focus:outline-none"
           />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="flex rounded-lg border border-hairline bg-panel p-0.5">
             {statusFilters.map((f) => (
               <button
@@ -88,6 +92,22 @@ export default function ReportsPage() {
         </div>
       </div>
 
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {typeFilters.map((t) => (
+          <button
+            key={t.value}
+            onClick={() => setTypeFilter(t.value)}
+            className={`rounded-full border px-3 py-1 text-[0.78rem] transition-colors ${
+              typeFilter === t.value
+                ? 'border-evidence bg-evidence-soft font-medium text-evidence'
+                : 'border-hairline bg-panel text-ink-soft hover:text-ink'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
       <div className="mt-6 space-y-3">
         {loading && (
           <div className="animate-pulse space-y-2">
@@ -98,9 +118,9 @@ export default function ReportsPage() {
         )}
         {!loading && filtered.length === 0 && (
           <EmptyState
-            title={search || statusFilter !== 'all' ? 'No matching reports' : 'No reports yet'}
+            title={search || statusFilter !== 'all' || typeFilter !== 'all' ? 'No matching reports' : 'No reports yet'}
             description={
-              search || statusFilter !== 'all'
+              search || statusFilter !== 'all' || typeFilter !== 'all'
                 ? 'Try a different search or filter.'
                 : 'Run a research from the dashboard and it will be saved here.'
             }
@@ -125,6 +145,15 @@ export default function ReportsPage() {
             </div>
           </button>
         ))}
+        {hasMore && !error && !loading && (
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-hairline bg-panel px-4 py-3 text-[0.85rem] font-medium text-ink-soft transition-colors hover:border-evidence hover:text-evidence disabled:opacity-60"
+          >
+            {loadingMore ? 'Loading more…' : 'Load more'}
+          </button>
+        )}
       </div>
     </div>
   )
